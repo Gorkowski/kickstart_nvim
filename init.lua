@@ -377,6 +377,23 @@ require('lazy').setup({
     },
   },
 
+  -- zen-mode
+  {
+    'folke/zen-mode.nvim',
+    opts = {
+      window = {
+        width = 120,
+        options = {
+          number = true,
+          relativenumber = false,
+        },
+      },
+    },
+    keys = {
+      { '<leader>z', '<cmd>ZenMode<cr>', desc = 'Toggle Zen Mode' },
+    },
+  },
+
   -- harpoon load
   {
     'ThePrimeagen/harpoon',
