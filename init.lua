@@ -443,6 +443,19 @@ require('lazy').setup({
           relativenumber = false,
         },
       },
+      on_open = function()
+        -- Map :q to exit Zen Mode and quit the buffer
+        vim.cmd [[
+          command! -buffer Q lua require("zen-mode").toggle(); vim.cmd("q")
+        ]]
+        vim.cmd [[
+          cabbrev <buffer> q Q
+        ]]
+      end,
+      on_close = function()
+        -- Clean up if necessary (optional)
+        vim.cmd [[delcommand Q]]
+      end,
     },
     keys = {
       { '<leader>z', '<cmd>ZenMode<cr>', desc = 'Toggle Zen Mode' },
