@@ -188,6 +188,19 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 -- Open the current file in the system's default application
 vim.keymap.set('n', '<leader>r', ':!python3 %<CR>', { desc = 'Run Python file' })
 
+-- define the appearance of the colorcolumn or colorbar
+vim.api.nvim_set_hl(0, 'ColorColumn', { ctermbg = 0, bg = '#3e4451' })
+
+-- autocmd to turn on a ruler at col 79 for python files
+vim.api.nvim_create_augroup('python_ruler', { clear = true })
+vim.api.nvim_create_autocmd('FileType', {
+  group = 'python_ruler',
+  pattern = 'python',
+  callback = function()
+    vim.opt_local.colorcolumn = '79'
+  end,
+})
+
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
 -- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
@@ -383,11 +396,14 @@ require('lazy').setup({
 
   -- auto-save files
   {
+    -- Auto-save when you leave Insert mode or change text,
+    -- but ignore Harpoon’s quick-menu and other scratch buffers.
     'Pocco81/auto-save.nvim',
     event = { 'InsertLeave', 'TextChanged' },
     config = function()
       require('auto-save').setup {
         enabled = true,
+
         execution_message = {
           message = function()
             return ('AutoSave: saved at ' .. vim.fn.strftime '%H:%M:%S')
@@ -395,17 +411,31 @@ require('lazy').setup({
           dim = 0.18,
           cleaning_interval = 1250,
         },
+
         trigger_events = { 'InsertLeave', 'TextChanged' },
+
+        -- Only save “normal” edit buffers (skip Harpoon, dashboards, etc.)
         condition = function(buf)
           local fn = vim.fn
           local utils = require 'auto-save.utils.data'
-          if fn.getbufvar(buf, '&modifiable') == 1 and utils.not_in(fn.getbufvar(buf, '&filetype'), {}) then
+
+          local modifiable = fn.getbufvar(buf, '&modifiable') == 1
+          local ft = fn.getbufvar(buf, '&filetype')
+          local bt = fn.getbufvar(buf, '&buftype')
+
+          -- Filetypes/buffertypes we never want to autosave
+          local ignored_filetypes = { 'harpoon', 'alpha', 'dashboard' }
+          local ignored_buftypes = { 'nofile', 'prompt', 'help', 'terminal' }
+
+          if modifiable and utils.not_in(ft, ignored_filetypes) and utils.not_in(bt, ignored_buftypes) then
             return true
           end
           return false
         end,
-        write_all_buffers = false,
+
+        write_all_buffers = false, -- keep default behavior
         debounce_delay = 135,
+
         callbacks = {
           enabling = nil,
           disabling = nil,
@@ -435,31 +465,41 @@ require('lazy').setup({
   -- zen-mode
   {
     'folke/zen-mode.nvim',
+    ft = { 'python' }, -- only load when a *.py buffer appears
+    keys = { { '<leader>z', '<cmd>ZenMode<cr>', desc = 'Toggle Zen Mode' } },
+
     opts = {
       window = {
         width = 120,
-        options = {
-          number = true,
-          relativenumber = false,
-        },
+        options = { number = true, relativenumber = false },
       },
       on_open = function()
-        -- Map :q to exit Zen Mode and quit the buffer
+        -- :q → quit Zen + buffer
         vim.cmd [[
           command! -buffer Q lua require("zen-mode").toggle(); vim.cmd("q")
-        ]]
-        vim.cmd [[
-          cabbrev <buffer> q Q
+          cabbrev  <buffer> q Q
         ]]
       end,
       on_close = function()
-        -- Clean up if necessary (optional)
         vim.cmd [[delcommand Q]]
       end,
     },
-    keys = {
-      { '<leader>z', '<cmd>ZenMode<cr>', desc = 'Toggle Zen Mode' },
-    },
+
+    -- runs after the plugin has been loaded
+    config = function(_, opts)
+      require('zen-mode').setup(opts)
+
+      -- auto-enter Zen Mode for every Python buffer
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = 'python',
+        group = vim.api.nvim_create_augroup('ZenAutoPython', { clear = true }),
+        callback = function()
+          if not vim.g.zen_mode_active then
+            require('zen-mode').open() -- open only once
+          end
+        end,
+      })
+    end,
   },
 
   -- harpoon load
@@ -587,6 +627,15 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>sg', function()
+        builtin.live_grep {
+          additional_args = function()
+            return { '--hidden', '--glob', '!.git/*' }
+          end,
+        }
+      end, {
+        desc = '[S]earch by [G]rep (with hidden)',
+      })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
