@@ -394,6 +394,24 @@ require('lazy').setup({
     },
   },
 
+  -- nerd tree file explore
+  {
+    'preservim/nerdtree',
+    lazy = false, -- ← always load at startup
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    keys = {
+      { '<leader>n', '<cmd>NERDTreeToggle<CR>', desc = 'Toggle [n]ERDTree' },
+      { '<leader>F', '<cmd>NERDTreeFind<CR>', desc = 'Find [F]ile in NERDTree' },
+    },
+    config = function()
+      vim.g.NERDTreeShowHidden = 1
+      vim.g.NERDTreeMinimalUI = 1
+      vim.g.NERDTreeWinSize = 30
+      if vim.fn.argc() == 0 then
+        vim.cmd 'NERDTree'
+      end
+    end,
+  },
   -- auto-save files
   {
     -- Auto-save when you leave Insert mode or change text,
@@ -412,7 +430,7 @@ require('lazy').setup({
           cleaning_interval = 1250,
         },
 
-        trigger_events = { 'InsertLeave', 'TextChanged' },
+        trigger_events = { 'InsertLeave', 'TextChangedI' },
 
         -- Only save “normal” edit buffers (skip Harpoon, dashboards, etc.)
         condition = function(buf)
