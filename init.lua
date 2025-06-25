@@ -310,10 +310,10 @@ require('lazy').setup({
   --  event = 'VimEnter'
   --
   -- which loads which-key before all the UI elements are loaded. Events can be
-  -- normal autocommands events (`:help autocmd-events`).
+  -- normal autocommands events (:help autocmd-events).
   --
-  -- Then, because we use the `opts` key (recommended), the configuration runs
-  -- after the plugin has been loaded as `require(MODULE).setup(opts)`.
+  -- Then, because we use the opts key (recommended), the configuration runs
+  -- after the plugin has been loaded as require(MODULE).setup(opts).
 
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
@@ -364,6 +364,7 @@ require('lazy').setup({
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+        -- { '<leader>g', group = '[G]it' },
       },
     },
   },
@@ -407,9 +408,25 @@ require('lazy').setup({
       vim.g.NERDTreeShowHidden = 1
       vim.g.NERDTreeMinimalUI = 1
       vim.g.NERDTreeWinSize = 30
-      if vim.fn.argc() == 0 then
-        vim.cmd 'NERDTree'
-      end
+      -- if vim.fn.argc() == 0 then
+      --   vim.cmd 'NERDTree'
+      -- end
+      vim.api.nvim_create_autocmd('BufEnter', {
+        callback = function()
+          local wins = vim.api.nvim_tabpage_list_wins(0)
+          if #wins == 2 then
+            -- Check if one of the windows is NERDTree and we're not in it
+            for _, win in ipairs(wins) do
+              local buf = vim.api.nvim_win_get_buf(win)
+              local ft = vim.api.nvim_buf_get_option(buf, 'filetype')
+              if ft == 'nerdtree' and vim.bo.filetype ~= 'nerdtree' then
+                vim.cmd 'NERDTreeClose'
+                break
+              end
+            end
+          end
+        end,
+      })
     end,
   },
   -- auto-save files
@@ -483,7 +500,7 @@ require('lazy').setup({
   -- zen-mode
   {
     'folke/zen-mode.nvim',
-    ft = { 'python' }, -- only load when a *.py buffer appears
+    -- ft = { 'python' }, -- only load when a *.py buffer appears
     keys = { { '<leader>z', '<cmd>ZenMode<cr>', desc = 'Toggle Zen Mode' } },
 
     opts = {
@@ -503,21 +520,21 @@ require('lazy').setup({
       end,
     },
 
-    -- runs after the plugin has been loaded
-    config = function(_, opts)
-      require('zen-mode').setup(opts)
-
-      -- auto-enter Zen Mode for every Python buffer
-      vim.api.nvim_create_autocmd('FileType', {
-        pattern = 'python',
-        group = vim.api.nvim_create_augroup('ZenAutoPython', { clear = true }),
-        callback = function()
-          if not vim.g.zen_mode_active then
-            require('zen-mode').open() -- open only once
-          end
-        end,
-      })
-    end,
+    -- -- runs after the plugin has been loaded
+    -- config = function(_, opts)
+    --   require('zen-mode').setup(opts)
+    --
+    --   -- auto-enter Zen Mode for every Python buffer
+    --   vim.api.nvim_create_autocmd('FileType', {
+    --     pattern = 'python',
+    --     group = vim.api.nvim_create_augroup('ZenAutoPython', { clear = true }),
+    --     callback = function()
+    --       if not vim.g.zen_mode_active then
+    --         require('zen-mode').open() -- open only once
+    --       end
+    --     end,
+    --   })
+    -- end,
   },
 
   -- harpoon load
@@ -677,6 +694,27 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sn', function()
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
+    end,
+  },
+
+  -- neogit git integration
+  {
+    'TimUntersberger/neogit',
+    lazy = false, -- ← always load at startup
+    cmd = 'Neogit',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'sindrets/diffview.nvim',
+      'nvim-telescope/telescope.nvim',
+    },
+    config = function()
+      require('neogit').setup {
+        disable_signs = false,
+        disable_context_highlighting = false,
+        disable_commit_confirmation = true,
+        auto_refresh = true,
+        kind = 'tab',
+      }
     end,
   },
 
