@@ -47,18 +47,17 @@ return {
       { '<leader>gg', '<cmd>Neogit<CR>', desc = 'Git Guide' },
       { '<leader>gd', '<cmd>DiffviewOpen<CR>', desc = 'Diff View' },
       { '<leader>gs', '<cmd>Neogit stage<CR>', desc = 'Stage All' },
-      {'<leader>gc', '<cmd>Neogit commit<CR>', desc = 'Commit Changes' },
+      { '<leader>gc', '<cmd>Neogit commit<CR>', desc = 'Commit Changes' },
       { '<leader>gr', '<cmd>Neogit rebase<CR>', desc = 'Rebase' },
       { '<leader>gF', '<cmd>Neogit push --force-with-lease<CR>', desc = 'Force push w/ lease' },
       { '<leader>gu', '<cmd>Neogit push<CR>', desc = 'Push to upstream' },
       { '<leader>go', '<cmd>Neogit push<CR>', desc = 'Push to origin' },
       { '<leader>gb', '<cmd>Telescope git_branches<CR>', desc = 'Checkout Branch' },
 
-      
       {
         '<leader>gR',
         function()
-          require('telescope.builtin').git_branches({
+          require('telescope.builtin').git_branches {
             prompt_title = 'Checkout Remote Branch',
             remote = true,
             attach_mappings = function(_, map)
@@ -70,7 +69,7 @@ return {
               end)
               return true
             end,
-          })
+          }
         end,
         desc = 'Checkout Remote → Local with Tracking',
       },
