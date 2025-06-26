@@ -41,17 +41,27 @@ return {
       { '<leader>s', group = '[S]earch' },
       { '<leader>t', group = '[T]oggle' },
       { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
-      -- 🧠 Add your Git mappings here
+      -- 🧠 Updated Git mappings using Neogit CLI-style commands
+
       { '<leader>g', group = '[G]it' },
       { '<leader>gg', '<cmd>Neogit<CR>', desc = 'Git Guide' },
       { '<leader>gd', '<cmd>DiffviewOpen<CR>', desc = 'Diff View' },
-      { '<leader>gs', '<cmd>lua require("neogit").actions.stage_all()<CR>', desc = 'Stage all' },
-      { '<leader>gc', '<cmd>lua require("neogit").actions.commit.commit()<CR>', desc = 'Commit' },
-      { '<leader>gr', '<cmd>lua require("neogit").actions.rebase.open_rebase_popup()<CR>', desc = 'Rebase' },
-      { '<leader>gF', '<cmd>lua require("neogit").actions.push.force_with_lease()<CR>', desc = 'Force push w/ lease' },
-      { '<leader>gu', '<cmd>lua require("neogit").actions.push.push_to_upstream()<CR>', desc = 'Push to upstream' },
-      { '<leader>go', '<cmd>lua require("neogit").actions.push.push_to_origin()<CR>', desc = 'Push to origin' },
+      { '<leader>gs', '<cmd>Neogit stage<CR>', desc = 'Stage All' },
+      {
+        '<leader>gc',
+        function()
+          vim.cmd('!git add -A')
+          vim.cmd('Neogit commit')
+        end,
+        desc = 'Stage all and commit',
+      },
+      { '<leader>gr', '<cmd>Neogit rebase<CR>', desc = 'Rebase' },
+      { '<leader>gF', '<cmd>Neogit push --force-with-lease<CR>', desc = 'Force push w/ lease' },
+      { '<leader>gu', '<cmd>Neogit push<CR>', desc = 'Push to upstream' },
+      { '<leader>go', '<cmd>Neogit push<CR>', desc = 'Push to origin' },
       { '<leader>gb', '<cmd>Telescope git_branches<CR>', desc = 'Checkout Branch' },
+
+      
       {
         '<leader>gR',
         function()
