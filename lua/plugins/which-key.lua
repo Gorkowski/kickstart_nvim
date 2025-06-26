@@ -47,14 +47,7 @@ return {
       { '<leader>gg', '<cmd>Neogit<CR>', desc = 'Git Guide' },
       { '<leader>gd', '<cmd>DiffviewOpen<CR>', desc = 'Diff View' },
       { '<leader>gs', '<cmd>Neogit stage<CR>', desc = 'Stage All' },
-      {
-        '<leader>gc',
-        function()
-          vim.cmd('!git add -A')
-          vim.cmd('Neogit commit')
-        end,
-        desc = 'Stage all and commit',
-      },
+      {'<leader>gc', '<cmd>Neogit commit<CR>', desc = 'Commit Changes' },
       { '<leader>gr', '<cmd>Neogit rebase<CR>', desc = 'Rebase' },
       { '<leader>gF', '<cmd>Neogit push --force-with-lease<CR>', desc = 'Force push w/ lease' },
       { '<leader>gu', '<cmd>Neogit push<CR>', desc = 'Push to upstream' },
