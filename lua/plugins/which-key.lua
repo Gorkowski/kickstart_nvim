@@ -42,36 +42,93 @@ return {
       { '<leader>t', group = '[T]oggle' },
       { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       -- 🧠 Updated Git mappings using Neogit CLI-style commands
-
       { '<leader>g', group = '[G]it' },
-      { '<leader>gg', '<cmd>Neogit<CR>', desc = 'Git Guide' },
+      { '<leader>gg', '<cmd>Neogit<CR>', desc = '[g]uide' },
       { '<leader>gd', '<cmd>DiffviewOpen<CR>', desc = 'Diff View' },
-      { '<leader>gs', '<cmd>Neogit stage<CR>', desc = 'Stage All' },
-      { '<leader>gc', '<cmd>Neogit commit<CR>', desc = 'Commit Changes' },
-      { '<leader>gr', '<cmd>Neogit rebase<CR>', desc = 'Rebase' },
-      { '<leader>gF', '<cmd>Neogit push --force-with-lease<CR>', desc = 'Force push w/ lease' },
-      { '<leader>gu', '<cmd>Neogit push<CR>', desc = 'Push to upstream' },
-      { '<leader>go', '<cmd>Neogit push<CR>', desc = 'Push to origin' },
-      { '<leader>gb', '<cmd>Telescope git_branches<CR>', desc = 'Checkout Branch' },
-
+      { '<leader>gc', '<cmd>Neogit commit<CR>', desc = '[c]ommit Changes' },
+      { '<leader>gr', '<cmd>Neogit rebase<CR>', desc = '[r]ebase' },
+      { '<leader>gs', '<cmd>Neogit reset<CR>', desc = 're[s]et' },
+      { '<leader>gF', '<cmd>Neogit push --force-with-lease<CR>', desc = '[F]orce push w/ lease' },
+      { '<leader>gp', '<cmd>Neogit push<CR>', desc = '[p]ush' },
+      { '<leader>gP', '<cmd>Neogit pull<CR>', desc = '[P]ULL' },
       {
-        '<leader>gR',
+        '<leader>gb',
         function()
-          require('telescope.builtin').git_branches {
-            prompt_title = 'Checkout Remote Branch',
-            remote = true,
-            attach_mappings = function(_, map)
-              map('i', '<CR>', function(prompt_bufnr)
-                local entry = require('telescope.actions.state').get_selected_entry()
-                local branch = entry.value:gsub('^origin/', '')
-                require('telescope.actions').close(prompt_bufnr)
-                vim.cmd('Git switch -c ' .. branch .. ' --track origin/' .. branch)
-              end)
+          local builtin = require 'telescope.builtin'
+          local actions = require 'telescope.actions'
+          local action_state = require 'telescope.actions.state'
+
+          builtin.git_branches {
+            prompt_title = '[b]ranch Checkout',
+            show_remote = true,
+            attach_mappings = function(prompt_bufnr, map)
+              local function checkout()
+                -- get selected branch
+                local entry = action_state.get_selected_entry()
+                -- close Telescope
+                actions.close(prompt_bufnr)
+                -- switch to the branch (with --track if needed)
+                vim.cmd('!git switch --track ' .. entry.value)
+              end
+
+              map('i', '<CR>', checkout)
+              map('n', '<CR>', checkout)
               return true
             end,
           }
         end,
-        desc = 'Checkout Remote → Local with Tracking',
+        desc = '[b]ranch Checkout',
+      },
+      {
+        '<leader>gh',
+        function()
+          -- get short hash, strip newline
+          local h = vim.fn.system('git rev-parse HEAD'):gsub('%s+', '')
+          -- copy to system clipboard
+          vim.fn.setreg('+', h)
+          -- feedback
+          vim.notify('Copied Git hash: ' .. h, vim.log.levels.INFO)
+        end,
+        desc = '[h]ash copy',
+      },
+
+      -- 📋 Copy file path mappings
+      { '<leader>p', group = '[p]ath copy' },
+      {
+        '<leader>pf',
+        function()
+          local file = vim.fn.expand '%:t'
+          vim.fn.setreg('+', file)
+          print('Copied file name: ' .. file)
+        end,
+        desc = '[f]ile Name',
+      },
+      {
+        '<leader>pr',
+        function()
+          local rel = vim.fn.expand '%'
+          vim.fn.setreg('+', rel)
+          print('Copied relative path: ' .. rel)
+        end,
+        desc = '[r]elative path',
+      },
+      {
+        '<leader>pd',
+        function()
+          local dir = vim.fn.expand '%:p:h'
+          vim.fn.setreg('+', dir)
+          print('Copied directory path: ' .. dir)
+        end,
+        desc = '[d]irectory path',
+      },
+      {
+        '<leader>pp',
+        function()
+          local path = vim.fn.expand '%:p'
+          vim.fn.setreg('+', path)
+          print('Copied full path: ' .. path)
+        end,
+        desc = '[p]ath',
       },
     },
   },

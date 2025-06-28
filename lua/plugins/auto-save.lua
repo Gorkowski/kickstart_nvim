@@ -1,13 +1,13 @@
 -- Auto-save files when leaving insert mode or text changes
 return {
   'Pocco81/auto-save.nvim',
-  event = { 'InsertLeave', 'TextChanged' },
+  event = { 'InsertLeave', 'TextChangedI' },
   config = function()
     require('auto-save').setup {
       enabled = true,
       execution_message = {
         message = function()
-          return 'AutoSave: saved at ' .. vim.fn.strftime('%H:%M:%S')
+          return 'AutoSave: saved at ' .. vim.fn.strftime '%H:%M:%S'
         end,
         dim = 0.18,
         cleaning_interval = 1250,
