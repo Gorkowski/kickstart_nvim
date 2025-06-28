@@ -51,7 +51,7 @@ return {
       { '<leader>gF', '<cmd>Neogit push --force-with-lease<CR>', desc = '[F]orce push w/ lease' },
       { '<leader>gp', '<cmd>Neogit push<CR>', desc = '[p]ush' },
       { '<leader>gP', '<cmd>Neogit pull<CR>', desc = '[P]ULL' },
-      {
+      { -- 📂 Git switch branch for both local and remote branches
         '<leader>gb',
         function()
           local builtin = require 'telescope.builtin'
@@ -63,12 +63,17 @@ return {
             show_remote = true,
             attach_mappings = function(prompt_bufnr, map)
               local function checkout()
-                -- get selected branch
                 local entry = action_state.get_selected_entry()
-                -- close Telescope
+                local branch = entry.value
                 actions.close(prompt_bufnr)
-                -- switch to the branch (with --track if needed)
-                vim.cmd('!git switch --track ' .. entry.value)
+
+                if branch:find '/' then
+                  -- remote branch: e.g. "origin/feature-x"
+                  vim.cmd('!git switch --track ' .. branch)
+                else
+                  -- local branch: e.g. "main"
+                  vim.cmd('!git switch ' .. branch)
+                end
               end
 
               map('i', '<CR>', checkout)
