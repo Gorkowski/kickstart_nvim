@@ -41,6 +41,17 @@ return {
       { '<leader>s', group = '[S]earch' },
       { '<leader>t', group = '[T]oggle' },
       { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+      -- Key maps for oil file explorer
+      { '<leader>o', group = '[O]il' },
+      { '<leader>oo', '<cmd>Oil<CR>', desc = '[o]pen Oil file explorer' },
+      { '<leader>of', '<cmd>Oil %:p:h<CR>', desc = '[f]ind in Oil file explorer' },
+      { '<leader>od', '<cmd>Oil %:p:h<CR>', desc = '[d]irectory in Oil file explorer' },
+      -- Key maps for (LSP diagnostics)
+      { '<leader>d', group = '[D]iagnostic' },
+      { '<leader>dn', '<cmd>lua vim.diagnostic.goto_next()<CR>', desc = 'Next [d]iagnostic' },
+      { '<leader>dp', '<cmd>lua vim.diagnostic.goto_prev()<CR>', desc = 'Previous [d]iagnostic' },
+      { '<leader>de', '<cmd>lua vim.diagnostic.open_float()<CR>', desc = '[e]xpand diagnostic' },
+      { '<leader>dq', '<cmd>lua vim.diagnostic.setloclist()<CR>', desc = 'Diagnostics to [q]uickfix' },
       -- 🧠 Updated Git mappings using Neogit CLI-style commands
       { '<leader>g', group = '[G]it' },
       { '<leader>gg', '<cmd>Neogit<CR>', desc = '[g]uide' },

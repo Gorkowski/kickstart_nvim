@@ -1,4 +1,4 @@
--- Auto-save files when leaving insert mode or text changes
+-- Auto-save files when only on certain file types
 return {
   'Pocco81/auto-save.nvim',
   event = { 'InsertLeave', 'TextChangedI' },
@@ -14,14 +14,10 @@ return {
       },
       trigger_events = { 'InsertLeave', 'TextChangedI' },
       condition = function(buf)
-        local fn = vim.fn
-        local utils = require 'auto-save.utils.data'
-        local modifiable = fn.getbufvar(buf, '&modifiable') == 1
-        local ft = fn.getbufvar(buf, '&filetype')
-        local bt = fn.getbufvar(buf, '&buftype')
-        local ignored_filetypes = { 'harpoon', 'alpha', 'dashboard' }
-        local ignored_buftypes = { 'nofile', 'prompt', 'help', 'terminal' }
-        if modifiable and utils.not_in(ft, ignored_filetypes) and utils.not_in(bt, ignored_buftypes) then
+        -- only save if the buffer is modifiable and is python or markdown
+        local bo = vim.bo[buf]
+        local ft = bo.filetype
+        if bo.modifiable and (ft == 'python' or ft == 'markdown') then
           return true
         end
         return false
